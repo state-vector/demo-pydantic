@@ -71,10 +71,13 @@ impl Validator for DateTimeValidator {
         let strict = state.strict_or(self.strict);
         let datetime = match input.validate_datetime(strict, self.microseconds_precision, self.val_temporal_unit) {
             Ok(val_match) => val_match.unpack(state),
-            // if the error was a parsing error, in lax mode we allow dates and add the time 00:00:00
-            Err(line_errors @ ValError::LineErrors(..)) if !strict => {
+            // In lax mode, return None for unparseable inputs -- consistent with
+            // how other validators (int, float) handle lax-mode parse failures.
+            // This avoids raising ValidationError for inputs that are "close enough"
+            // to valid but not exactly parseable as datetime.
+            Err(ValError::LineErrors(..)) if !strict => {
                 state.floor_exactness(Exactness::Lax);
-                datetime_from_date(input)?.ok_or(line_errors)?
+                return Ok(py.None());
             }
             Err(otherwise) => return Err(otherwise),
         };
