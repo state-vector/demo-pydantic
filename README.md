@@ -68,3 +68,4 @@ contribution to Pydantic, see
 ## Reporting a Security Vulnerability
 
 See our [security policy](https://github.com/pydantic/pydantic/security/policy).
+<!-- requeue verification 2026-10-04T12:17:13Z -->
